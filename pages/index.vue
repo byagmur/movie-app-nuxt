@@ -1,4 +1,6 @@
 <script setup lang="ts">
+
+
 definePageMeta({
   name: 'home',
   path: '/',
@@ -9,7 +11,10 @@ const movieStore = useMovieStore()
 onMounted(async () => {
   await movieStore.fetchPopularMovie()
   movieStore.isLoading = false
+  await movieStore.fetchTvSeriesDetail()
+  await movieStore.fetchPopTvSeries()
 })
+
 </script>
 
 <template>
@@ -43,7 +48,7 @@ onMounted(async () => {
         </h3>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 ">
-          <MovieCard
+          <MediaCard
             v-for="movie in movieStore.popularMovies"
             :id="movie.id"
             :key="movie.id"
@@ -66,7 +71,7 @@ onMounted(async () => {
 <style scoped>
 .form {
   --input-text-color: #ffffff50;
-  --input-bg-color: transparent;
+  --input-bg-color: #ffffff18 ;
   --focus-input-bg-color: transparent;
   --text-color: #949faa;
   --active-color: rgb(170, 170, 170);

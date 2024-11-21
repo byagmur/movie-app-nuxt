@@ -14,6 +14,7 @@ export const useMovieStore = defineStore('movies', () => {
   const trailers = ref<Video>()
   const movieGenreList = ref<Genre>()
   const popularTvSeries = ref<Media>()
+  const tvSeriesDetails = ref<Media>()
 
   async function fetchPopularMovie() {
     try {
@@ -85,6 +86,16 @@ export const useMovieStore = defineStore('movies', () => {
     }
   }
 
+  const fetchTvSeriesDetail = async () => {
+    try {
+      const res = await fetch('', authStore.options)
+      const data = await res.json()
+      tvSeriesDetails.value = data
+      console.log('tv series details', tvSeriesDetails)
+    }
+    catch (err) { return err }
+  }
+
   return {
     fetchPopularMovie,
     popularMovies,
@@ -95,5 +106,7 @@ export const useMovieStore = defineStore('movies', () => {
     searchMovie,
     fetchTrailer,
     trailers,
+    fetchTvSeriesDetail,
+    fetchPopTvSeries,
   }
 })
