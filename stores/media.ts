@@ -1,3 +1,4 @@
+import { inject } from 'vue'
 /* eslint-disable no-console */
 /* eslint-disable unused-imports/no-unused-vars */
 import type { Genre, Media, Video } from '~/types'
@@ -15,10 +16,15 @@ export const useMovieStore = defineStore('movies', () => {
   const movieGenreList = ref<Genre>()
   const popularTvSeries = ref<Media>()
   const tvSeriesDetails = ref<Media>()
+  const selected = ref()
+  const router = useRouter()
+  const mediaType: ComputedRef<'movie' | 'tv'> = computed(() => router.currentRoute.value.params.media)
+
+  // const _media = inject('selectedMedia')
 
   async function fetchPopularMovie() {
     try {
-      const response = await fetch(`${baseUrl}movie/popular`, authStore.options)
+      const response = await fetch(`${baseUrl}${mediaType.value}/popular`, authStore.options)
       await response.json().then(data =>
         popularMovies.value = data.results.slice(0, 8),
       )
@@ -27,6 +33,24 @@ export const useMovieStore = defineStore('movies', () => {
       console.error('veri alinamadi', err)
     }
   }
+
+  // watch(() => selected, (nw, ow) => {
+  //   if(nw !== ow){
+  //     fetchMovieDetails(selected)
+  //   }
+  // })
+
+  // const fetchPopTvSeries = async () => {
+  //   try {
+  //     const res = await fetch(`${baseUrl}tv/popular?language=en-US&page=1`, authStore.options)
+  //     const data = await res.json()
+  //     popularTvSeries.value = data
+  //     console.log('popular series..', popularTvSeries.value)
+  //   }
+  //   catch (err) {
+  //     return err
+  //   }
+  // }
 
   const fetchMovieDetails = async (id: number) => {
     try {
@@ -74,18 +98,6 @@ export const useMovieStore = defineStore('movies', () => {
     catch (err) { return err }
   }
 
-  const fetchPopTvSeries = async () => {
-    try {
-      const res = await fetch(`${baseUrl}tv/popular?language=en-US&page=1`, authStore.options)
-      const data = await res.json()
-      popularTvSeries.value = data
-      console.log('popular series..', popularTvSeries.value)
-    }
-    catch (err) {
-      return err
-    }
-  }
-
   const fetchTvSeriesDetail = async () => {
     try {
       const res = await fetch('', authStore.options)
@@ -107,6 +119,6 @@ export const useMovieStore = defineStore('movies', () => {
     fetchTrailer,
     trailers,
     fetchTvSeriesDetail,
-    fetchPopTvSeries,
+    selected,
   }
 })

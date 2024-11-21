@@ -1,11 +1,29 @@
-
 <script setup lang="ts">
+// import { provide } from 'vue'
 
+const options = ['movie', 'tv']
+const router = useRouter()
+const movieStore = useMovieStore()
 
+const selectedParam = ref<'movie' | 'tv'>()
+
+watch(() => movieStore.selected, (newSelected) => {
+  if (newSelected) {
+    router.push({
+      name: 'media',
+      params: {
+        media: movieStore.selected,
+      },
+    },
+
+    )
+  }
+})
+
+// provide('selectedMedia', 'selected')
 </script>
 
 <template>
-
   <nav class="fixed top-0 z-10 w-full bg-gray-100 dark:bg-neutral-900 text-white shadow-xl">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-row-reverse  items-center h-16">
@@ -19,10 +37,16 @@
         </div>
 
         <div class="flex mt-1 ml-6 space-x-4 ">
-          <USelectMenu variant=""></USelectMenu>
+          <USelectMenu
+            v-model="selectedParam" color="gray" size="md" placeholder="" :options="options" class="w-20"
+            @update:model-value="(nw) => router.push({
+              name: 'media',
+              params: {
+                media: nw,
+              },
+            })"
+          />
         </div>
-
-        
       </div>
     </div>
   </nav>
@@ -73,7 +97,7 @@
   transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider {
+.checkbox:checked~.slider {
   background-color: var(--light);
 }
 
@@ -90,7 +114,7 @@
   transition: 0.3s;
 }
 
-.checkbox:checked ~ .slider::before {
+.checkbox:checked~.slider::before {
   transform: translateX(20px);
   background-color: var(--dark);
   box-shadow: none;

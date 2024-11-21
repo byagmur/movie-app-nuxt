@@ -12,6 +12,17 @@ useSeoMeta({
   description: 'This is my site, let me tell you all about it.',
 
 })
+
+const router = useRouter()
+
+onMounted(() => {
+  router.push({
+    name: 'media',
+    params: {
+      media: 'movie',
+    },
+  })
+})
 </script>
 
 <template>

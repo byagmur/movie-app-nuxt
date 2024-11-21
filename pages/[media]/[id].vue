@@ -2,7 +2,7 @@
 import { useMovieStore } from '~/stores/media'
 
 definePageMeta({
-  name: 'moveDetails',
+  name: 'mediaDetails',
 })
 const route = useRoute()
 const movieStore = useMovieStore()

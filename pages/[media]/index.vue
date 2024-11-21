@@ -2,17 +2,14 @@
 
 
 definePageMeta({
-  name: 'home',
-  path: '/',
+  name: 'media'
 })
 
 const movieStore = useMovieStore()
 
 onMounted(async () => {
-  await movieStore.fetchPopularMovie()
+  await movieStore.fetchPopularMovie('movie')
   movieStore.isLoading = false
-  await movieStore.fetchTvSeriesDetail()
-  await movieStore.fetchPopTvSeries()
 })
 
 </script>
