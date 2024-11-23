@@ -9,9 +9,10 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+
 function navigateToDetails() {
   router.push({
-    name: 'movieDetails',
+    name: 'mediaDetails',
     params: {
       id: props.id,
     },
@@ -34,6 +35,7 @@ function navigateToDetails() {
       class="cursor-pointer rounded-sm h-auto mb-3 transition-opacity duration-200 hover:opacity-90"
       @click="$emit('fetchDetails', 'props.id')"
     > -->
+
     <img
       :src="props.posterPath"
       :alt="props.name"

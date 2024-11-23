@@ -1,27 +1,39 @@
 <script setup lang="ts">
-
-
 definePageMeta({
-  name: 'media'
+  name: 'media',
 })
 
-const movieStore = useMovieStore()
+const mediaStore = useMediaStore()
+const route = useRoute()
+const router = useRouter()
 
 onMounted(async () => {
-  await movieStore.fetchPopularMovie('movie')
-  movieStore.isLoading = false
+  await mediaStore.fetchPopularMedia('movie')
+  mediaStore.isLoading = false
+  await fetchMediaBasedOnRoute()
+
 })
+
+function fetchMediaBasedOnRoute() {
+  const mediaType = route.path === '/movie' ? 'movie' : 'tv'
+  mediaStore.fetchPopularMedia(mediaType)
+}
+
+watch(
+  () => route.path,
+  () => fetchMediaBasedOnRoute(),
+)
 
 </script>
 
 <template>
   <NuxtLayout>
     <template #header>
-      <div v-if="movieStore.isLoading" class="z-50 bg-gray-950/75 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+      <div v-if="mediaStore.isLoading" class="z-50 bg-gray-950/75 fixed top-0 left-0 w-full h-full flex justify-center items-center">
         <Loader />
       </div>
       <div class="overflow-y-auto p-4">
-        <form class="form mx-auto m-4 mt-20 ">
+        <form class="form mx-auto m-4 mt-20 mb-10 ">
           <label for="search" class="shadow-xl rounded-3xl">
             <input id="search" class="input" type="text" required="" placeholder="Search movie">
             <div class="fancy-bg" />
@@ -40,25 +52,22 @@ onMounted(async () => {
           </label>
         </form>
 
-        <h3 class="inter-tight font-bold ml-8">
-          Popular Movies
-        </h3>
+        <div>
+          <h1 class="text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-8">
+            {{ route.path === '/movie' ? 'Popular Movies' : 'Popular Series' }}
+          </h1>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 ">
-          <MediaCard
-            v-for="movie in movieStore.popularMovies"
-            :id="movie.id"
-            :key="movie.id"
-            :name="movie.title"
-            :vote-average="Math.floor(movie.vote_average)"
-            :poster-path="movieStore.baseUrlImg + movie.poster_path"
-            @click="useRouter().push({
-              name: 'moveDetails',
-              params: {
-                id: movie.id,
-              },
-            })"
-          />
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4">
+            <MediaCard
+              v-for="media in mediaStore.mediaList"
+              :id="media.id"
+              :key="media.id"
+              :name="media.title || media.name"
+              :vote-average="Math.floor(media.vote_average)"
+              :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
+              @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
+            />
+          </div>
         </div>
       </div>
     </template>
