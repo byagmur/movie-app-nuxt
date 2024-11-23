@@ -12,7 +12,8 @@ const mediaStore = useMediaStore()
 
 const selectedParam = ref<'movie' | 'tv'>((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
-onMounted(() => {
+onMounted(async () => {
+  await mediaStore.fetchGenres(selected)
 })
 
 // watch(() => selected.value, (newSelected) => {
@@ -54,20 +55,19 @@ const isDark = ref<boolean>(useColorMode().value === 'dark')
           v-model="selectedParam"
           size="xl"
           :options="options"
-          class="uradio-group-horizontal gap-4 w-22 border-none"
+          class=" gap-4 w-22 border-none"
           orientation="horizontal"
-    />
-  </div>
+        />
+      </div>
 
-  <div class="flex items-center"
-        >
-          <UToggle
-            v-model="isDark"
-            off-icon="i-heroicons-sun"
-            on-icon="i-heroicons-moon"
-            size="xl"
-            @click="toggleColorMode()"
-          />
+      <div class="flex items-center">
+        <UToggle
+          v-model="isDark"
+          off-icon="i-heroicons-sun"
+          on-icon="i-heroicons-moon"
+          size="lg"
+          @click="toggleColorMode()"
+        />
       </div>
     </div>
 
@@ -78,7 +78,7 @@ const isDark = ref<boolean>(useColorMode().value === 'dark')
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-.uradio-group-horizontal {
+.uradio-group {
   display: flex;
   flex-direction: row;
   gap: 1rem;
