@@ -1,61 +1,88 @@
 <script setup lang="ts">
 // import { provide } from 'vue'
 
-const options = ['movie', 'tv']
+const options = [
+  { label: 'Movie', value: 'movie' },
+  { label: 'Tv', value: 'tv' },
+]
+
 const router = useRouter()
-const movieStore = useMovieStore()
+const selected = ref()
+const mediaStore = useMediaStore()
 
-const selectedParam = ref<'movie' | 'tv'>()
+const selectedParam = ref<'movie' | 'tv'>((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
-watch(() => movieStore.selected, (newSelected) => {
-  if (newSelected) {
+onMounted(async () => {
+  await mediaStore.fetchGenres(selected)
+})
+
+// watch(() => selected.value, (newSelected) => {
+//   if (newSelected) {
+//     router.push({
+//       name: 'media',
+//       params: {
+//         media: selected.value,
+//       },
+//     },
+//     )
+//   }
+// })
+watch(selectedParam, (newValue) => {
+  if (newValue) {
     router.push({
       name: 'media',
       params: {
-        media: movieStore.selected,
+        media: newValue,
       },
-    },
-
-    )
+    })
   }
 })
+
+const isDark = ref<boolean>(useColorMode().value === 'dark')
+
+// const formattedValue = computed (() => {
+//   return selected.value.charAt(0).toUpperCase() + selected.value.slice(1)
+// })
 
 // provide('selectedMedia', 'selected')
 </script>
 
 <template>
-  <nav class="fixed top-0 z-10 w-full bg-gray-100 dark:bg-neutral-900 text-white shadow-xl">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-row-reverse  items-center h-16">
-        <div class="flex ml-8 mr-5 mt-1 space-x-4">
-          <div class="toggle-switch">
-            <label class="switch-label" @click="toggleColorMode()">
-              <input type="checkbox" class="checkbox" :checked="isDarkMode" @change="toggleColorMode">
-              <span class="slider" />
-            </label>
-          </div>
-        </div>
+  <div class="top-0 z-10 w-full  text-white ">
+    <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
+      <div class="flex items-center">
+        <URadioGroup
+          v-model="selectedParam"
+          size="xl"
+          :options="options"
+          class=" gap-4 w-22 border-none"
+          orientation="horizontal"
+        />
+      </div>
 
-        <div class="flex mt-1 ml-6 space-x-4 ">
-          <USelectMenu
-            v-model="selectedParam" color="gray" size="md" placeholder="" :options="options" class="w-20"
-            @update:model-value="(nw) => router.push({
-              name: 'media',
-              params: {
-                media: nw,
-              },
-            })"
-          />
-        </div>
+      <div class="flex items-center">
+        <UToggle
+          v-model="isDark"
+          off-icon="i-heroicons-sun"
+          on-icon="i-heroicons-moon"
+          size="lg"
+          @click="toggleColorMode()"
+        />
       </div>
     </div>
-  </nav>
 
-  <slot name="header" />
+    <slot name="header" />
+  </div>
 </template>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.uradio-group {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
 
 .inter-tight {
   font-family: "Inter Tight", sans-serif;
