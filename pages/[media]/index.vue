@@ -11,7 +11,6 @@ onMounted(async () => {
   await mediaStore.fetchPopularMedia('movie')
   mediaStore.isLoading = false
   await fetchMediaBasedOnRoute()
-
 })
 
 function fetchMediaBasedOnRoute() {
@@ -24,6 +23,27 @@ watch(
   () => fetchMediaBasedOnRoute(),
 )
 
+const itemsPerPage = 8
+const currentStartIndex = ref(0)
+
+const visibleMedia = computed(() => {
+  return mediaStore.mediaList.slice(
+    currentStartIndex.value,
+    currentStartIndex.value + itemsPerPage,
+  )
+})
+
+function scrollRight() {
+  if (currentStartIndex.value + itemsPerPage < mediaStore.mediaList.length) {
+    currentStartIndex.value++
+  }
+}
+
+function scrollLeft() {
+  if (currentStartIndex.value > 0) {
+    currentStartIndex.value--
+  }
+}
 </script>
 
 <template>
@@ -57,24 +77,88 @@ watch(
             {{ route.path === '/movie' ? 'Popular Movies' : 'Popular Series' }}
           </h1>
 
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4">
-            <MediaCard
-              v-for="media in mediaStore.mediaList"
-              :id="media.id"
-              :key="media.id"
-              :name="media.title || media.name"
-              :vote-average="Math.floor(media.vote_average)"
-              :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
-              @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
-            />
+          <!-- <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4"> -->
+          <div class="carousel-container">
+            <UButton class="arrow left" icon="heroicons-arrow-left" size="xs" @click="scrollLeft" />
+            <div class="carousel-wrapper">
+              <transition-group name="slide" tag="div" class="carousel">
+                <MediaCard
+                  v-for="media in visibleMedia"
+                  :id="media.id"
+                  :key="media.id"
+                  class="carousel-item"
+                  :style="{ width: '200px', height: '300px' }"
+                  :name="media.title || media.name"
+                  :vote-average="Math.floor(media.vote_average)"
+                  :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
+                  @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
+                />
+              </transition-group>
+            </div>
+            <UButton class="arrow right" icon="heroicons-arrow-right" size="xs" @click="scrollRight" />
           </div>
         </div>
       </div>
+      <!-- </div> -->
     </template>
   </NuxtLayout>
 </template>
 
 <style scoped>
+.carousel-item {
+  width: 200px;
+  height: 300px;
+}
+
+.carousel-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+.carousel {
+  display: flex;
+  gap: 10px;
+  transition: transform 0.3s ease-in-out;
+
+}
+
+.arrow {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.arrow.left {
+  left: 10px;
+}
+
+.arrow.right {
+  right: 10px;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease-in-out;
+}
+
+.slide-enter-from {
+  transform: translateX(100%);
+}
+
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
 .form {
   --input-text-color: #ffffff50;
   --input-bg-color: #ffffff18 ;

@@ -48,7 +48,7 @@ const isDark = ref<boolean>(useColorMode().value === 'dark')
 </script>
 
 <template>
-  <div class="top-0 z-10 w-full dark:bg-neutral-900 text-white shadow-xl">
+  <div class="top-0 z-10 w-full  text-white ">
     <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
       <div class="flex items-center">
         <URadioGroup

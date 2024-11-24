@@ -16,13 +16,14 @@ useSeoMeta({
 const router = useRouter()
 
 onMounted(() => {
-  // router.push({
-  //   name: 'media',
-  //   params: {
-  //     media: 'movie',
-  //   },
-  // })
+  router.push({
+    name: 'media',
+    params: {
+      media: 'movie',
+    },
+  })
 })
+
 </script>
 
 <template>
