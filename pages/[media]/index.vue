@@ -6,11 +6,15 @@ definePageMeta({
 const mediaStore = useMediaStore()
 const route = useRoute()
 const router = useRouter()
+const itemsPerPage = ref(7)
+const currentStartIndex = ref(0)
+// const width = window.innerWidth
 
 onMounted(async () => {
   await mediaStore.fetchPopularMedia('movie')
   mediaStore.isLoading = false
   await fetchMediaBasedOnRoute()
+  
 })
 
 function fetchMediaBasedOnRoute() {
@@ -22,20 +26,23 @@ watch(
   () => route.path,
   () => fetchMediaBasedOnRoute(),
 )
-
-const itemsPerPage = 8
-const currentStartIndex = ref(0)
-
+//
 const visibleMedia = computed(() => {
-  return mediaStore.mediaList.slice(
-    currentStartIndex.value,
-    currentStartIndex.value + itemsPerPage,
-  )
+  // birleştirilmiş medya listesi
+  const listLength = mediaStore.mediaList.length
+  const startIndex = currentStartIndex.value
+  return [
+    ...mediaStore.mediaList.slice(startIndex, startIndex + itemsPerPage.value),
+    ...mediaStore.mediaList.slice(0, Math.max(0, (startIndex + itemsPerPage.value) - listLength)),
+  ]
 })
 
 function scrollRight() {
-  if (currentStartIndex.value + itemsPerPage < mediaStore.mediaList.length) {
+  if (currentStartIndex.value + itemsPerPage.value < mediaStore.mediaList.length) {
     currentStartIndex.value++
+  }
+  else {
+    currentStartIndex.value = 0
   }
 }
 
@@ -43,7 +50,31 @@ function scrollLeft() {
   if (currentStartIndex.value > 0) {
     currentStartIndex.value--
   }
+  else {
+    currentStartIndex.value = mediaStore.mediaList.length - itemsPerPage.value
+  }
 }
+
+// function updateItemsPerPage() {
+//   const width = window.innerWidth
+
+//   if (width >= 1024) {
+//     itemsPerPage.value = 8
+//   }
+//   else if (width >= 768) {
+//     itemsPerPage.value = 6
+//   }
+//   else if (width >= 640) {
+//     itemsPerPage.value = 4
+//   }
+//   else {
+//     itemsPerPage.value = 2
+//   }
+// }
+
+// window.addEventListener('resize', updateItemsPerPage)
+// resize olayi ile pencere boyutu dinlenir
+// pencerenin boyutu degistiginde  updateItemsPerPage fonksiyonu tetiklenir
 </script>
 
 <template>
@@ -53,7 +84,7 @@ function scrollLeft() {
         <Loader />
       </div>
       <div class="overflow-y-auto p-4">
-        <form class="form mx-auto m-4 mt-20 mb-10 ">
+        <form class="form mx-auto m-4 mt-24 mb-8 ">
           <label for="search" class="shadow-xl rounded-3xl">
             <input id="search" class="input" type="text" required="" placeholder="Search movie">
             <div class="fancy-bg" />
@@ -79,8 +110,8 @@ function scrollLeft() {
 
           <!-- <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4"> -->
           <div class="carousel-container">
-            <UButton class="arrow left" icon="heroicons-arrow-left" size="xs" @click="scrollLeft" />
-            <div class="carousel-wrapper">
+            <UButton class="arrow left " icon="heroicons-arrow-left" size="xs" @click="scrollLeft" />
+            <div class="ml-9 carousel-wrapper">
               <transition-group name="slide" tag="div" class="carousel">
                 <MediaCard
                   v-for="media in visibleMedia"
@@ -108,6 +139,7 @@ function scrollLeft() {
 .carousel-item {
   width: 200px;
   height: 300px;
+
 }
 
 .carousel-container {
@@ -116,13 +148,13 @@ function scrollLeft() {
   position: relative;
   width: 100%;
   overflow: hidden;
-}
 
+}
 
 .carousel {
   display: flex;
-  gap: 10px;
-  transition: transform 0.3s ease-in-out;
+  gap: 5px;
+  transition: transform 0.6s ease-in-out;
 
 }
 
@@ -148,7 +180,7 @@ function scrollLeft() {
 
 .slide-enter-active,
 .slide-leave-active {
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.6s ease-in-out;
 }
 
 .slide-enter-from {
