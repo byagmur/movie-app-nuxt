@@ -58,7 +58,9 @@ onMounted(async () => {
 
         <div class="lg:ml-10 lg:w-1/2 absolute inset-0 flex flex-col justify-center text-white px-6 space-y-4 z-10">
           <h1 v-if="mediaStore.mediaDetails" class="text-4xl font-bold">
+            {{  }}
             {{ mediaStore.mediaDetails?.title }}
+            {{ mediaStore.mediaDetails?.name }}
           </h1>
           <div class="flex items-center space-x-2">
             <span class="text-yellow-400 text-lg">★</span>

@@ -22,7 +22,7 @@ export const useMediaStore = defineStore('movies', () => {
 
   async function fetchPopularMedia(mediaTypeValue: any) {
     try {
-      const response = await fetch(`${baseUrl}${mediaTypeValue}/popular`, authStore.options)
+      const response = await fetch(`${baseUrl}${mediaTypeValue}/popular?adult=false`, authStore.options)
       await response.json().then(data =>
         mediaList.value = data.results.slice(0, 20),
       )
