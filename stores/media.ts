@@ -13,10 +13,11 @@ export const useMediaStore = defineStore('movies', () => {
   const isLoading = ref<boolean>(true)
   const searchedMedia = ref<Media>()
   const trailers = ref<Video>()
-  const genreList = ref<Genre>()
+  const genreList = ref([])
   const router = useRouter()
   const mediaType: ComputedRef<'movie' | 'tv'> = computed(() => (router.currentRoute.value.params.media as 'movie' | 'tv'))
   const mediaTypeValue = mediaType.value
+  const topMedia = ref<Media>()
 
   // const _media = inject('selectedMedia')
 
@@ -74,12 +75,22 @@ export const useMediaStore = defineStore('movies', () => {
     }
   }
 
-  const fetchGenres = async (mediaTypeValue: any) => {
+  const fetchGenres = async (_media: string) => {
     try {
-      const res = await fetch(`${baseUrl}genre/${mediaTypeValue}/list?language=en`, authStore.options)
+      const res = await fetch(`${baseUrl}genre/${_media}/list?language=en`, authStore.options)
       const data = await res.json()
-      genreList.value = data
+      genreList.value = data.genres
       console.log('türler,', genreList.value)
+    }
+    catch (err) { return err }
+  }
+
+  const fetchTopMedia = async (mediaTypeValue:any) => {
+    try {
+      const res = await fetch(`${baseUrl}${mediaTypeValue}/top_rated?language=en-US&page=1`, authStore.options)
+      const data = await res.json()
+      topMedia.value = data
+      console.log(topMedia.value)
     }
     catch (err) { return err }
   }
@@ -97,5 +108,7 @@ export const useMediaStore = defineStore('movies', () => {
     mediaType,
     fetchGenres,
     genreList,
+    fetchTopMedia,
+    topMedia
   }
 })

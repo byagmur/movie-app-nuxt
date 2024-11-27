@@ -6,7 +6,7 @@ definePageMeta({
 const mediaStore = useMediaStore()
 const route = useRoute()
 const router = useRouter()
-const itemsPerPage = ref(7)
+const itemsPerPage = ref(9)
 const currentStartIndex = ref(0)
 // const width = window.innerWidth
 
@@ -14,7 +14,7 @@ onMounted(async () => {
   await mediaStore.fetchPopularMedia('movie')
   mediaStore.isLoading = false
   await fetchMediaBasedOnRoute()
-  
+  await mediaStore.fetchTopMedia('movie')
 })
 
 function fetchMediaBasedOnRoute() {
@@ -111,7 +111,7 @@ function scrollLeft() {
           <!-- <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4"> -->
           <div class="carousel-container">
             <UButton class="arrow left " icon="heroicons-arrow-left" size="xs" @click="scrollLeft" />
-            <div class="ml-9 carousel-wrapper">
+            <div class="ml-6 carousel-wrapper">
               <transition-group name="slide" tag="div" class="carousel">
                 <MediaCard
                   v-for="media in visibleMedia"

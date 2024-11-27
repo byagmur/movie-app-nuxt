@@ -1,9 +1,7 @@
 <script setup lang="ts">
 const isDark = ref<boolean>(useColorMode().value === 'dark')
+const router = useRouter()
 
-function goBack() {
-  window.history.back()
-}
 </script>
 
 <template>
@@ -12,7 +10,7 @@ function goBack() {
       <div class="flex items-center">
         <UButton
         class="bg-transparent cursor-pointer transition  duration-300 ease-in-out inter-tight text-gray-600 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400"
-        @click="goBack"
+        @click="$router.back"
         size="xl"
         icon="i-heroicons-arrow-left"
         color="transparent"

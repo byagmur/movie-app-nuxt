@@ -7,14 +7,24 @@ const options = [
 ]
 
 const router = useRouter()
-const selected = ref()
+const isOpen = ref(false)
 const mediaStore = useMediaStore()
+const selectedGenre = ref()
 
 const selectedParam = ref<'movie' | 'tv'>((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
 onMounted(async () => {
-  await mediaStore.fetchGenres(selected)
+  await mediaStore.fetchGenres(selectedParam.value)
+  console.log('selectedParam value--', selectedParam.value) // movie
+  console.log('secilen tur--', selectedGenre.value)  //?? neden undefined ?
 })
+
+const mappedGenres = computed(() =>
+  mediaStore.genreList?.map(genre => ({
+    label: genre.name,
+    value: genre.id,
+  })) || [],
+)
 
 // watch(() => selected.value, (newSelected) => {
 //   if (newSelected) {
@@ -27,6 +37,7 @@ onMounted(async () => {
 //     )
 //   }
 // })
+
 watch(selectedParam, (newValue) => {
   if (newValue) {
     router.push({
@@ -39,18 +50,12 @@ watch(selectedParam, (newValue) => {
 })
 
 const isDark = ref<boolean>(useColorMode().value === 'dark')
-
-// const formattedValue = computed (() => {
-//   return selected.value.charAt(0).toUpperCase() + selected.value.slice(1)
-// })
-
-// provide('selectedMedia', 'selected')
 </script>
 
 <template>
   <div class="top-0 z-10 w-full  text-white ">
     <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
-      <div class="flex items-center">
+      <div class="gap-7 flex items-center">
         <URadioGroup
           v-model="selectedParam"
           size="xl"
@@ -58,6 +63,14 @@ const isDark = ref<boolean>(useColorMode().value === 'dark')
           class=" gap-4 w-22 border-none"
           orientation="horizontal"
         />
+        <USelectMenu v-model="selectedGenre" class="flex items-center  w-32" :options="mappedGenres" />
+        <UButton size="sm" class="rounded-full" label="Filtreler" icon="heroicons-adjustments-horizontal" @click="isOpen = true" />
+
+        <UModal v-model="isOpen">
+          <div class=" p-4">
+            <Placeholder class="h-48" />
+          </div>
+        </UModal>
       </div>
 
       <div class="flex items-center">
