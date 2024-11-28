@@ -23,7 +23,6 @@ function navigateToDetails() {
 <template>
   
   <div class=" items-center p-4 rounded-lg transition-transform transform hover:-translate-y-1 ">
-    <!--yıldız -->
     <div class="h-8 z-10 absolute top-2 right-2 bg-neutral-900 bg-opacity-75 text-yellow-200 text-xs font-semibold rounded-full px-2 py-1 flex items-center">
       <span class="mr-1">{{ props.voteAverage }}</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">

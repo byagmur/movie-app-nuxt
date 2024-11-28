@@ -9,14 +9,14 @@ const options = [
 const router = useRouter()
 const isOpen = ref(false)
 const mediaStore = useMediaStore()
-const selectedGenre = ref()
+const selectedGenre = ref(16)
 
 const selectedParam = ref<'movie' | 'tv'>((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
 onMounted(async () => {
   await mediaStore.fetchGenres(selectedParam.value)
-  console.log('selectedParam value--', selectedParam.value) // movie
-  console.log('secilen tur--', selectedGenre.value)  //?? neden undefined ?
+  // console.log('selectedParam value--', selectedParam.value) // movie
+  // console.log('secilen tur--', selectedGenre.value) // ?? neden undefined ?
 })
 
 const mappedGenres = computed(() =>
@@ -48,39 +48,37 @@ watch(selectedParam, (newValue) => {
     })
   }
 })
-
-const isDark = ref<boolean>(useColorMode().value === 'dark')
 </script>
 
 <template>
   <div class="top-0 z-10 w-full  text-white ">
     <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
-      <div class="gap-7 flex items-center">
+      <div class="gap-7 w-full flex items-center">
         <URadioGroup
           v-model="selectedParam"
           size="xl"
           :options="options"
-          class=" gap-4 w-22 border-none"
           orientation="horizontal"
         />
-        <USelectMenu v-model="selectedGenre" class="flex items-center  w-32" :options="mappedGenres" />
-        <UButton size="sm" class="rounded-full" label="Filtreler" icon="heroicons-adjustments-horizontal" @click="isOpen = true" />
+        <USelectMenu v-model="selectedGenre" value-attribute="value" class=" sm:w-32 flex items-center  w-16" :options="mappedGenres" />
+        <UButton
+          size="sm"
+          class="rounded-full"
 
-        <UModal v-model="isOpen">
-          <div class=" p-4">
-            <Placeholder class="h-48" />
-          </div>
+          icon="heroicons-adjustments-horizontal"
+          @click="isOpen = true"
+        />
+
+        <UModal
+          v-model="isOpen"
+          class=""
+        >
+          <div class="p-4" />
         </UModal>
       </div>
 
       <div class="flex items-center">
-        <UToggle
-          v-model="isDark"
-          off-icon="i-heroicons-sun"
-          on-icon="i-heroicons-moon"
-          size="lg"
-          @click="toggleColorMode()"
-        />
+        <ChangeTeheToggle />
       </div>
     </div>
 
