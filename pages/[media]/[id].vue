@@ -34,7 +34,8 @@ onMounted(async () => {
           :alt="mediaStore.mediaDetails?.title"
           class="absolute inset-0 h-full w-full object-cover"
         >
-        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/90 to-transparent" />
+<div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 lg:via-black/85 to-transparent transition-background duration-500 ease-in-out" />
+
 
         <div class="sm:w-1/2 lg:ml-10 lg:w-1/2 absolute inset-0 flex flex-col justify-center text-white px-6 space-y-4 z-10">
           <h1 v-if="mediaStore.mediaDetails" class="text-4xl font-bold">

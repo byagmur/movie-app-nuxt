@@ -11,6 +11,7 @@ const currentStartIndex = ref(0)
 const query = ref<string>('')
 
 
+
 onMounted(async () => {
   await mediaStore.fetchPopularMedia('movie')
   mediaStore.isLoading = false
@@ -19,19 +20,19 @@ onMounted(async () => {
   console.log('mediatop--', mediaStore.topMedia)
   await mediaStore.searchMedia(query.value, 'movie')
   console.log('searchedMedia', mediaStore.searchedMedia)
-  console.log('query',query)
+  console.log('query', query)
 })
 
 
 watch(query, (newQuery) => {
   if (newQuery) {
-    mediaStore.searchMedia(newQuery, 'movie');  
-    }
-    else {
-      mediaStore.searchedMedia = []
-      mediaStore.isSearch = false
-    }
-});
+    mediaStore.searchMedia(newQuery, 'movie')
+  }
+  else {
+    mediaStore.searchedMedia = []
+    mediaStore.isSearch = false
+  }
+})
 
 function fetchMediaBasedOnRoute() {
   const mediaType = route.path === '/movie' ? 'movie' : 'tv'
@@ -83,8 +84,9 @@ function scrollLeft() {
         <UInput
           v-model="query"
           icon="heroicons-magnifying-glass"
-          class=" mx-auto mt-24 mb-8 w-36"
-          type="text" placeholder="Search" style="border-radius: 20px;"
+          class="shadow-lg rounded-full mx-auto mt-24 mb-8 w-40"
+          type="text" placeholder="Search" style="border-radius: 22px;"
+          size="xl"
         />
 
         <div v-show="!mediaStore.isSearch">
@@ -130,8 +132,9 @@ function scrollLeft() {
           />
         </div>
       </div>
+<div v-if="mediaStore.topMedia && mediaStore.topMedia.length">
       <div v-show="!mediaStore.isSearch">
-        <h1 class="ml-12 mt-10 text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-8">
+        <h1 class="ml-13 mt-10 text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-8">
           {{ route.path === '/movie' ? 'Top Rated Movies' : 'Top Rated Series' }}
         </h1>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 xl:grid-cols-8 gap-4">
@@ -147,6 +150,11 @@ function scrollLeft() {
           />
         </div>
       </div>
+      
+    </div>
+    <div v-else>
+ <Loader />
+  </div>
     </template>
   </NuxtLayout>
 </template>

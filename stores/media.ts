@@ -17,7 +17,7 @@ export const useMediaStore = defineStore('movies', () => {
   const router = useRouter()
   const mediaType: ComputedRef<'movie' | 'tv'> = computed(() => (router.currentRoute.value.params.media as 'movie' | 'tv'))
   const mediaTypeValue = mediaType.value
-  const topMedia = ref<Media>()
+  const topMedia = ref<Media[]>([])
   const isSearch = ref(false)
 
   // const _media = inject('selectedMedia')
@@ -57,7 +57,6 @@ export const useMediaStore = defineStore('movies', () => {
       searchedMedia.value = []
       isSearch.value = false
     }
-
     else {
       try {
         const requestUrl = `${baseUrl}search/${mediaTypeValue}?query=${query}&include_adult=false&language=en-US&page=1`
@@ -101,7 +100,7 @@ export const useMediaStore = defineStore('movies', () => {
       const res = await fetch(`${baseUrl}${mediaTypeValue}/top_rated?language=en-US&page=1`, authStore.options)
       const data = await res.json()
       topMedia.value = data
-      // console.log('topmedia',topMedia.value)
+      console.log('topmedia',topMedia.value)
     }
     catch (err) { return err }
   }
