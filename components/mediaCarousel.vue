@@ -1,154 +1,120 @@
-<script>
-import { ref } from 'vue'
-// Import Swiper Vue.js components
+<script setup>
+import { Navigation, Pagination, Virtual } from 'swiper/modules'
 import { Swiper, SwiperSlide } from 'swiper/vue'
-
-// Import Swiper styles
+import { defineProps } from 'vue'
 import 'swiper/css'
-
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import 'swiper/css/virtual'
 
-// import Swiper core and required modules
-import { Navigation, Pagination, Virtual } from 'swiper/modules'
-
-export default {
-  components: {
-    Swiper,
-    SwiperSlide,
+// Props: Media listesi
+const props = defineProps({
+  mediaList: {
+    type: Array,
+    required: true,
   },
-  setup() {
-    // Create array with 500 slides
-    const slides = ref(
-      Array.from({ length: 500 }).map((_, index) => `Slide ${index + 1}`),
-    )
-    let swiperRef = null
-    let appendNumber = 500
-    let prependNumber = 1
+})
 
-    const setSwiperRef = (swiper) => {
-      swiperRef = swiper
-    }
-    const slideTo = (index) => {
-      swiperRef.slideTo(index - 1, 0)
-    }
-    const append = () => {
-      slides.value = [...slides.value, `Slide ${++appendNumber}`]
-    }
-    const prepend = () => {
-      slides.value = [
-        `Slide ${prependNumber - 2}`,
-        `Slide ${prependNumber - 1}`,
-        ...slides.value,
-      ]
-      prependNumber -= 2
-      swiperRef.slideTo(swiperRef.activeIndex + 2, 0)
-    }
-    return {
-      slides,
-      swiperRef: null,
-      appendNumber,
-      prependNumber,
-      setSwiperRef,
-      slideTo,
-      append,
-      prepend,
-      modules: [Pagination, Navigation, Virtual],
-    }
-  },
+const slidesPerView = ref(8)
+const spaceBetween = ref(0)
+
+function updateSlidesPerView() {
+  const width = window.innerWidth
+  if (width >= 1500) {
+    slidesPerView.value = 8
+  } 
+  else if (width >= 1145) {
+    slidesPerView.value = 6
+    spaceBetween.value = 10
+  }
+  else if (width >= 1000) {
+    slidesPerView.value = 5
+    spaceBetween.value = 10
+  }
+  else if (width >= 992) {
+    slidesPerView.value = 5
+    spaceBetween.value = 10
+  } 
+  else if (width >= 792) {
+    slidesPerView.value = 5
+    spaceBetween.value = 10
+  }
+  else if (width >= 668) {
+    slidesPerView.value = 4
+
+  } else if (width >= 476) {
+    slidesPerView.value = 3
+    spaceBetween.value = 10
+  } else if (width >= 300){
+    slidesPerView.value = 2
+    spaceBetween.value = 30
+  }
 }
+
+onMounted(() => {
+  updateSlidesPerView()
+  window.addEventListener('resize', updateSlidesPerView)
+})
 </script>
 
 <template>
-  <div>
-    <Swiper
-      :modules="modules"
-      :slides-per-view="3"
-      :centered-slides="true"
-      :space-between="30"
-      :pagination="{
-        type: 'fraction',
-      }"
-      :navigation="true"
-      :virtual="true"
-      class="mySwiper"
-      @swiper="setSwiperRef"
+  <Swiper
+    :modules="[Pagination, Navigation, Virtual]"
+    :slides-per-view="slidesPerView"
+    :centered-slides="false"
+    :space-between="spaceBetween"
+    :navigation="true"
+    :virtual="true"
+
+  >
+    <SwiperSlide
+      v-for="(media, index) in props.mediaList"
+      :key="media.id"
+      :virtual-index="index"
+      
     >
-      <SwiperSlide
-        v-for="(slideContent, index) in slides"
-        :key="index"
-        :virtual-index="index"
-      >
-        {{ slideContent }}
-      </SwiperSlide>
-    </Swiper>
-    <p class="append-buttons">
-      <button class="prepend-2-slides" @click="prepend()">
-        Prepend 2 Slides
-      </button>
-      <button class="prepend-slide" @click="slideTo(1)">
-        Slide 1
-      </button>
-      <button class="slide-250" @click="slideTo(250)">
-        Slide 250
-      </button>
-      <button class="slide-500" @click="slideTo(500)">
-        Slide 500
-      </button>
-      <button class="append-slides" @click="append()">
-        Append Slide
-      </button>
-    </p>
-  </div>
+      <MediaCard
+        :id="media.id"
+        :name="media.title || media.name"
+        :vote-average="Math.floor(media.vote_average)"
+        :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
+        :style="{ width: '200px', height: '300px'}"
+        class="mx-8 px-7 lg:px-1 "
+      />
+    </SwiperSlide>
+
+    
+  </Swiper>
 </template>
 
-<style >
-
-
+<style>
 .swiper {
   width: 100%;
-  height: 100%;
+  height: 400px;
+margin: 20px 0 -30px 0;
 }
 
-.swiper-slide {
-  text-align: center;
-  font-size: 18px;
-  background: #fff;
-
-  /* Center slide text vertically */
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.swiper-button-next,
+.swiper-button-prev {
+  color: #fff ;
 }
 
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 2.5rem;
+font-weight: bold;
+
 }
 
-.swiper {
-  width: 100%;
-  height: 300px;
-  margin: 20px auto;
-}
-.append-buttons {
-  text-align: center;
-  margin-top: 20px;
+@media (max-width: 900px) {
+  .swiper-button-next::after,
+  .swiper-button-prev::after {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 150px;
+  }
 }
 
-.append-buttons button {
-  display: inline-block;
-  cursor: pointer;
-  border: 1px solid #007aff;
-  color: #007aff;
-  text-decoration: none;
-  padding: 4px 10px;
-  border-radius: 4px;
-  margin: 0 10px;
-  font-size: 13px;
-}
+
 
 </style>

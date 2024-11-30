@@ -1,7 +1,7 @@
 import { inject } from 'vue'
 /* eslint-disable no-console */
 /* eslint-disable unused-imports/no-unused-vars */
-import type { Genre, Media, Video } from '~/types'
+import type { Genre, Media, Person, Video } from '~/types'
 
 export const useMediaStore = defineStore('movies', () => {
   const baseUrl = 'https://api.themoviedb.org/3/'
@@ -19,8 +19,7 @@ export const useMediaStore = defineStore('movies', () => {
   const mediaTypeValue = mediaType.value
   const topMedia = ref<Media[]>([])
   const isSearch = ref(false)
-
-  // const _media = inject('selectedMedia')
+  const peopleList = ref<Person[]>([])
 
   async function fetchPopularMedia(mediaTypeValue: any) {
     try {
@@ -78,7 +77,7 @@ export const useMediaStore = defineStore('movies', () => {
       const res = await fetch(`${baseUrl}${mediaTypeValue}/${media_id}/videos`, authStore.options)
       const data = await res.json()
       trailers.value = data
-      // console.log(trailers.value)
+      console.log('trailers', trailers.value)
     }
     catch (err) {
       return err
@@ -99,10 +98,17 @@ export const useMediaStore = defineStore('movies', () => {
     try {
       const res = await fetch(`${baseUrl}${mediaTypeValue}/top_rated?language=en-US&page=1`, authStore.options)
       const data = await res.json()
-      topMedia.value = data
-      console.log('topmedia',topMedia.value)
+      topMedia.value = data.results
+      console.log('topmedia', topMedia.value)
     }
     catch (err) { return err }
+  }
+
+  const fetchPeopleList = async () => {
+    const res = await fetch(`${baseUrl}/person/popular?language=en-US&page=1`, authStore.options)
+    const data = await res.json()
+    peopleList.value = data.results
+    console.log('people--', peopleList.value)
   }
 
   return {
@@ -121,6 +127,8 @@ export const useMediaStore = defineStore('movies', () => {
     fetchTopMedia,
     topMedia,
     searchedMedia,
-    isSearch
+    isSearch,
+    peopleList,
+    fetchPeopleList
   }
 })
