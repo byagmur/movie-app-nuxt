@@ -1,7 +1,7 @@
 import { inject } from 'vue'
 /* eslint-disable no-console */
 /* eslint-disable unused-imports/no-unused-vars */
-import type { Genre, Media, Video } from '~/types'
+import type { Genre, Media, Person, Video } from '~/types'
 
 export const useMediaStore = defineStore('movies', () => {
   const baseUrl = 'https://api.themoviedb.org/3/'
@@ -11,18 +11,21 @@ export const useMediaStore = defineStore('movies', () => {
   const baseUrlImg = 'https://image.tmdb.org/t/p/w500'
   const mediaDetails = ref<Media>()
   const isLoading = ref<boolean>(true)
-  const searchedMedia = ref<Media>()
-  const trailers = ref<Video>()
-  const genreList = ref<Genre>()
+  const searchedMedia = ref<Media[]>([])
+  const trailers = ref()
+  const genreList = ref([])
   const router = useRouter()
   const mediaType: ComputedRef<'movie' | 'tv'> = computed(() => (router.currentRoute.value.params.media as 'movie' | 'tv'))
   const mediaTypeValue = mediaType.value
-
-  // const _media = inject('selectedMedia')
+  const topMedia = ref<Media[]>([])
+  const isSearch = ref(false)
+  const peopleList = ref<Person[]>([])
+  const searchPage = ref(1)
+  const totalPages = ref()
 
   async function fetchPopularMedia(mediaTypeValue: any) {
     try {
-      const response = await fetch(`${baseUrl}${mediaTypeValue}/popular`, authStore.options)
+      const response = await fetch(`${baseUrl}${mediaTypeValue}/popular?adult=false`, authStore.options)
       await response.json().then(data =>
         mediaList.value = data.results.slice(0, 20),
       )
@@ -50,38 +53,65 @@ export const useMediaStore = defineStore('movies', () => {
     }
   }
 
-  const searchMovie = async () => {
-    try {
-      const res = await fetch(`${baseUrl}search/movie?include_adult=false&language=en-US&page=1`, authStore.options)
-      const data = await res.json()
-      searchedMedia.value = data
-      console.log(searchedMedia.value)
+  const searchMedia = async (query: string, mediaTypeValue: any) => {
+    if (!query.trim()) {
+      searchedMedia.value = []
+      isSearch.value = false
     }
-    catch (err) {
-      return err
+    else {
+      try {
+        const requestUrl = `${baseUrl}search/${mediaTypeValue}?query=${query}&include_adult=false&language=en-US&page=${searchPage.value}`
+        const res = await fetch(requestUrl, authStore.options)
+        const data = await res.json()
+        searchedMedia.value = data.results
+        console.log(searchedMedia.value)
+        console.log('requestUrl', requestUrl)
+        isSearch.value = true
+        totalPages.value = data.total_pages
+      }
+      catch (err) {
+        return err
+      }
     }
   }
 
-  const fetchTrailer = async (movie_id: number) => {
+  const fetchTrailer = async (mediaTypeValue: any, media_id: number) => {
     try {
-      const res = await fetch(`${baseUrl}movie/${movie_id}/videos`, authStore.options)
+      const res = await fetch(`${baseUrl}${mediaTypeValue}/${media_id}/videos`, authStore.options)
       const data = await res.json()
       trailers.value = data
-      console.log(trailers.value)
+      console.log('trailers', trailers.value)
     }
     catch (err) {
       return err
     }
   }
 
-  const fetchGenres = async (mediaTypeValue: any) => {
+  const fetchGenres = async (_media: string) => {
     try {
-      const res = await fetch(`${baseUrl}genre/${mediaTypeValue}/list?language=en`, authStore.options)
+      const res = await fetch(`${baseUrl}genre/${_media}/list?language=en`, authStore.options)
       const data = await res.json()
-      genreList.value = data
-      console.log('türler,', genreList.value)
+      genreList.value = data.genres
+      // console.log('türler,', genreList.value)
     }
     catch (err) { return err }
+  }
+
+  const fetchTopMedia = async (mediaTypeValue: any) => {
+    try {
+      const res = await fetch(`${baseUrl}${mediaTypeValue}/top_rated?language=en-US&page=1`, authStore.options)
+      const data = await res.json()
+      topMedia.value = data.results
+      console.log('topmedia', topMedia.value)
+    }
+    catch (err) { return err }
+  }
+
+  const fetchPeopleList = async () => {
+    const res = await fetch(`${baseUrl}/person/popular?language=en-US&page=1`, authStore.options)
+    const data = await res.json()
+    peopleList.value = data.results
+    console.log('people--', peopleList.value)
   }
 
   return {
@@ -91,11 +121,19 @@ export const useMediaStore = defineStore('movies', () => {
     baseUrlImg,
     mediaDetails,
     isLoading,
-    searchMovie,
+    searchMedia,
     fetchTrailer,
     trailers,
     mediaType,
     fetchGenres,
     genreList,
+    fetchTopMedia,
+    topMedia,
+    searchedMedia,
+    isSearch,
+    peopleList,
+    fetchPeopleList,
+    searchPage,
+    totalPages
   }
 })

@@ -2,7 +2,7 @@
 useHead({
   title: 'Homepage | WebSite ',
   meta: [
-    { name: 'description', content: 'Açıklama?' },
+    { name: 'description', content: 'Açıklama' },
     { name: 'keywords', content: 'homepage, nuxt, seo' },
   ],
 })
@@ -14,16 +14,6 @@ useSeoMeta({
 })
 
 const router = useRouter()
-
-onMounted(() => {
-  router.push({
-    name: 'media',
-    params: {
-      media: 'movie',
-    },
-  })
-})
-
 </script>
 
 <template>
