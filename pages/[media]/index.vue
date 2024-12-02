@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 definePageMeta({
   name: 'media',
 })
@@ -30,11 +31,11 @@ watch(
 <template>
   <NuxtLayout>
     <template #header>
-      <div v-if="mediaStore.isLoading" class="z-50 bg-gray-900 fixed top-0 left-0 w-full h-full flex justify-center items-center">
+      <div v-if="mediaStore.isLoading" class=" z-50 bg-gray-900 fixed top-0 left-0 w-full h-full flex justify-center items-center">
         <Loader />
       </div>
 
-      <div class="p-4">
+      <div class="p-4 overflow-y-hidden">
         <!-- <UInput
           v-model="query"
           icon="heroicons-magnifying-glass"
@@ -43,7 +44,7 @@ watch(
           size="xl"
         />  -->
 
-        <div class="mt-24">
+        <div class="mt-24 ">
           <h1 class="text-center sm:text-left text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-4">
             {{ route.path === '/movie' ? 'Popular Movies' : 'Popular Series' }}
           </h1>
@@ -57,26 +58,11 @@ watch(
           <MediaCarousel :media-list="mediaStore.topMedia" />
         </div>
 
-        <div>
+        <div >
           <h1 class="text-center sm:text-left text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-4">
-            Peoples
+            Actors
           </h1>
-          <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-            <div
-              v-for="person in mediaStore.peopleList"
-              :key="person.id"
-              class="flex flex-col items-center text-center"
-            >
-              <img
-                :src="`https://image.tmdb.org/t/p/w200/${person.profile_path}`"
-                class="transition-transform transform hover:-translate-y-1 w-44 h-44 rounded-full object-cover"
-                :alt="person.name"
-              >
-
-              <p class="mt-2 font-medium text-sm">{{ person.name }}</p> 
-              <p v-if="person.name != person.original_name" class="mt-2 font-medium text-sm">{{ person.original_name }}</p>
-            </div>
-          </div>
+         <PeopleCarousel />
         </div>
       </div>
     </template>

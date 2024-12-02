@@ -7,47 +7,41 @@ import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import 'swiper/css/virtual'
 
-// Props: Media listesi
-const props = defineProps({
-  mediaList: {
-    type: Array,
-    required: true,
-  },
-})
-
 const slidesPerView = ref(8)
-const spaceBetween = ref(-16)
+const spaceBetween = ref(0)
+const mediaStore = useMediaStore()
 
 function updateSlidesPerView() {
   const width = window.innerWidth
   if (width >= 1500) {
-    slidesPerView.value = 8
-  } 
-  else if (width >= 1300) {
-    slidesPerView.value = 7
+    slidesPerView.value = 10
   }
-  else if (width >= 1045) {
-    slidesPerView.value = 5
-    spaceBetween.value = -20
-  }
-  else if (width >= 992) {
+  else if (width >= 1145) {
     slidesPerView.value = 6
     spaceBetween.value = 10
-  } 
+  }
+  else if (width >= 1000) {
+    slidesPerView.value = 5
+    spaceBetween.value = 10
+  }
+  else if (width >= 992) {
+    slidesPerView.value = 5
+    spaceBetween.value = 10
+  }
   else if (width >= 792) {
     slidesPerView.value = 5
     spaceBetween.value = 10
   }
   else if (width >= 668) {
     slidesPerView.value = 4
-
-  } else if (width >= 476) {
+  }
+  else if (width >= 476) {
     slidesPerView.value = 3
     spaceBetween.value = 10
-  } else if (width >= 300){
+  }
+  else if (width >= 300) {
     slidesPerView.value = 2
-    spaceBetween.value = -35
-    
+    spaceBetween.value = 30
   }
 }
 
@@ -65,32 +59,33 @@ onMounted(() => {
     :space-between="spaceBetween"
     :navigation="true"
     :virtual="true"
-
   >
     <SwiperSlide
-      v-for="(media, index) in props.mediaList"
-      :key="media.id"
-      :virtual-index="index"
 
+      v-for="person in mediaStore.peopleList"
+      :key="person.id"
+      class="mx-5 flex flex-col items-center text-center"
     >
-      <MediaCard
-        :id="media.id"
-        :name="media.title || media.name"
-        :vote-average="Math.floor(media.vote_average)"
-        :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
-        :style="{ width: '185px', height: '300px'}"
-        class="mx-8 px-7 lg:px-1 "
-      />
-    </SwiperSlide>
+      <img
+        :src="`https://image.tmdb.org/t/p/w200/${person.profile_path}`"
+        class="transition-transform transform hover:-translate-y-1 w-44 h-44 rounded-full object-cover"
+        :alt="person.name"
+      >
 
-    
+      <p class="mt-2 font-medium text-sm">
+        {{ person.name }}
+      </p>
+      <p v-if="person.name !== person.original_name" class="mt-2 font-medium text-sm">
+        {{ person.original_name }}
+      </p>
+    </SwiperSlide>
   </Swiper>
 </template>
 
 <style>
 .swiper {
   width: 100%;
-  height: 400px;
+  height: 420px;
 margin: 20px 0 -30px 0;
 }
 
@@ -103,7 +98,7 @@ margin: 20px 0 -30px 0;
 .swiper-button-prev::after {
   font-size: 2.5rem;
 font-weight: bold;
-
+margin-bottom: 80px;
 }
 
 @media (max-width: 900px) {
@@ -111,10 +106,7 @@ font-weight: bold;
   .swiper-button-prev::after {
     font-size: 2rem;
     font-weight: bold;
-    margin-bottom: 150px;
+    margin-bottom: 230px;
   }
 }
-
-
-
 </style>

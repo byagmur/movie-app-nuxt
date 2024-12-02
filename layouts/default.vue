@@ -40,6 +40,12 @@ watch(query, (newQuery) => {
     mediaStore.isSearch = false
   }
 })
+
+function handlePageChange(newPage) {
+  mediaStore.searchPage = newPage
+  mediaStore.searchMedia(query.value, mediaStore.mediaType)
+}
+
 </script>
 
 <template>
@@ -82,53 +88,59 @@ watch(query, (newQuery) => {
       </div>
 
       <div class="flex items-center lg:mr-5">
-    
-          <UButton
-            size="xl" class=" mr-1 dark:hover:bg-gray-800 hover:bg-gray-200" icon="heroicons-magnifying-glass" variant="link" color="black"
-            @click="isOpen = true"
-          />
-          
-          <UModal
-            v-model="isOpen"
+        <UButton
+          size="xl" class=" mr-1 dark:hover:bg-gray-800 hover:bg-gray-200" icon="heroicons-magnifying-glass" variant="link" color="black"
+          @click="isOpen = true"
+        />
 
-            :overlay="true" :ui="{ width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
-          >
-            <div>
-              <div class="p-3">
-                <!-- <UButton size="xl" class="hover:text-gray-400items-center justify-end " icon="heroicons-x-mark" variant="link" color="white" @click="isOpen = false" /> -->
+        <UModal
+          v-model="isOpen"
 
-                <UInput
-                  v-model="query"
-                  icon="heroicons-magnifying-glass"
-                  class="shadow-lg my-3 rounded-full mx-auto w-44"
-                  type="text" placeholder="Search" style="border-radius: 22px;"
-                  size="xl"
+          :overlay="true" :ui="{ width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
+        >
+          <div>
+            <div class="p-3">
+              <!-- <UButton size="xl" class="hover:text-gray-400items-center justify-end " icon="heroicons-x-mark" variant="link" color="white" @click="isOpen = false" /> -->
+
+              <UInput
+                v-model="query"
+                icon="heroicons-magnifying-glass"
+                class="shadow-lg my-3 rounded-full mx-auto w-44"
+                type="text" placeholder="Search" style="border-radius: 22px;"
+                size="xl"
+              />
+            </div>
+
+            <div v-show="mediaStore.isSearch" class="mr-10 ">
+              <h1 class="text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-10">
+                Results
+              </h1>
+              <div class="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:ml-6 lg:mr-6">
+                <MediaCard
+                  v-for="media in mediaStore.searchedMedia"
+                  :id="media.id"
+                  :key="media.id"
+                  :style="{ width: '190px', height: '300px' }"
+                  :name="media.title || media.name"
+                  :vote-average="Math.floor(media.vote_average)"
+                  :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
+                  @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
                 />
               </div>
-
-              <div class="mr-10 " v-show="mediaStore.isSearch">
-                <h1 class="text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-10">
-                  Results
-                </h1>
-                <div class="grid grid-cols-2 xs:grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:ml-6 lg:mr-6">
-                  <MediaCard
-                    v-for="media in mediaStore.searchedMedia"
-                    :id="media.id"
-                    :key="media.id"
-                    :style="{ width: '190px', height: '300px' }"
-                    :name="media.title || media.name"
-                    :vote-average="Math.floor(media.vote_average)"
-                    :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
-                    @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
-                  />
-                </div>
-              </div>
             </div>
-          </UModal>
-    
+          </div>
 
-        <!-- <UButton icon="heroicons-magnifying-glass"
-        variant="link" size="xl" color="white" class="dark:text-white text-gray-900 dark:hover:bg-gray-800  hover:bg-gray-200"/> -->
+          <UPagination
+            v-if="query"
+            v-model="mediaStore.searchPage"
+            size="sm"
+            :total="mediaStore.totalPages"
+            show-last
+            show-first
+            class="mx-auto p-10"
+            @update:model-value="handlePageChange"
+          />
+        </UModal>
 
         <UButton
           icon="heroicons-bell"
@@ -157,5 +169,4 @@ watch(query, (newQuery) => {
   font-style: normal;
   letter-spacing: 0.3px;
 }
-
 </style>

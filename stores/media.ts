@@ -20,6 +20,8 @@ export const useMediaStore = defineStore('movies', () => {
   const topMedia = ref<Media[]>([])
   const isSearch = ref(false)
   const peopleList = ref<Person[]>([])
+  const searchPage = ref(1)
+  const totalPages = ref()
 
   async function fetchPopularMedia(mediaTypeValue: any) {
     try {
@@ -58,13 +60,14 @@ export const useMediaStore = defineStore('movies', () => {
     }
     else {
       try {
-        const requestUrl = `${baseUrl}search/${mediaTypeValue}?query=${query}&include_adult=false&language=en-US&page=1`
+        const requestUrl = `${baseUrl}search/${mediaTypeValue}?query=${query}&include_adult=false&language=en-US&page=${searchPage.value}`
         const res = await fetch(requestUrl, authStore.options)
         const data = await res.json()
         searchedMedia.value = data.results
         console.log(searchedMedia.value)
         console.log('requestUrl', requestUrl)
         isSearch.value = true
+        totalPages.value = data.total_pages
       }
       catch (err) {
         return err
@@ -129,6 +132,8 @@ export const useMediaStore = defineStore('movies', () => {
     searchedMedia,
     isSearch,
     peopleList,
-    fetchPeopleList
+    fetchPeopleList,
+    searchPage,
+    totalPages
   }
 })
