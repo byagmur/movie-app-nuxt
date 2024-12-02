@@ -7,7 +7,6 @@ import 'swiper/css/pagination'
 import 'swiper/css/navigation'
 import 'swiper/css/virtual'
 
-// Props: Media listesi
 const props = defineProps({
   mediaList: {
     type: Array,
@@ -16,7 +15,7 @@ const props = defineProps({
 })
 
 const slidesPerView = ref(8)
-const spaceBetween = ref(-16)
+const spaceBetween = ref(-30)
 
 function updateSlidesPerView() {
   const width = window.innerWidth
@@ -31,7 +30,7 @@ function updateSlidesPerView() {
     spaceBetween.value = -20
   }
   else if (width >= 992) {
-    slidesPerView.value = 6
+    slidesPerView.value = 5
     spaceBetween.value = 10
   } 
   else if (width >= 792) {
@@ -78,7 +77,7 @@ onMounted(() => {
         :name="media.title || media.name"
         :vote-average="Math.floor(media.vote_average)"
         :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
-        :style="{ width: '185px', height: '300px'}"
+        :style="{ width: '200px', height: '300px'}"
         class="mx-8 px-7 lg:px-1 "
       />
     </SwiperSlide>

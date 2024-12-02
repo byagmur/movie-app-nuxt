@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMediaStore } from '~/stores/media'
 
 definePageMeta({
   name: 'mediaDetails',

@@ -22,6 +22,7 @@ export const useMediaStore = defineStore('movies', () => {
   const peopleList = ref<Person[]>([])
   const searchPage = ref(1)
   const totalPages = ref()
+  const mediaListByGenre = ref<Media[]>([])
 
   async function fetchPopularMedia(mediaTypeValue: any) {
     try {
@@ -58,7 +59,7 @@ export const useMediaStore = defineStore('movies', () => {
       searchedMedia.value = []
       isSearch.value = false
     }
-    else {
+    else if (query.length > 1) {
       try {
         const requestUrl = `${baseUrl}search/${mediaTypeValue}?query=${query}&include_adult=false&language=en-US&page=${searchPage.value}`
         const res = await fetch(requestUrl, authStore.options)
@@ -102,7 +103,7 @@ export const useMediaStore = defineStore('movies', () => {
       const res = await fetch(`${baseUrl}${mediaTypeValue}/top_rated?language=en-US&page=1`, authStore.options)
       const data = await res.json()
       topMedia.value = data.results
-      console.log('topmedia', topMedia.value)
+      // console.log('topmedia', topMedia.value)
     }
     catch (err) { return err }
   }
@@ -111,7 +112,14 @@ export const useMediaStore = defineStore('movies', () => {
     const res = await fetch(`${baseUrl}/person/popular?language=en-US&page=1`, authStore.options)
     const data = await res.json()
     peopleList.value = data.results
-    console.log('people--', peopleList.value)
+    // console.log('people--', peopleList.value)
+  }
+
+  const fetchGenresById = async (mediaTypeValue: any, _genreId: number,_page:number) => {
+    const res = await fetch(`${baseUrl}discover/${mediaTypeValue}?with_genres=${_genreId}&page=${_page}`, authStore.options)
+    const data = await res.json()
+    mediaListByGenre.value = data.results
+    console.log('yey',mediaListByGenre.value)
   }
 
   return {
@@ -134,6 +142,8 @@ export const useMediaStore = defineStore('movies', () => {
     peopleList,
     fetchPeopleList,
     searchPage,
-    totalPages
+    totalPages,
+    fetchGenresById,
+    mediaListByGenre
   }
 })

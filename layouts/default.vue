@@ -1,10 +1,11 @@
 <script setup lang="ts">
 const router = useRouter()
 const isOpen = ref(false)
+
 const mediaStore = useMediaStore()
 const selectedGenre = ref(16)
 const query = ref<string>('')
-const selectedParam = ref<'movie' | 'tv'>((router.currentRoute.value.params.media as 'movie' | 'tv'))
+const selectedParam = ref((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
 onMounted(async () => {
   await mediaStore.fetchGenres(selectedParam.value)
@@ -20,20 +21,37 @@ const mappedGenres = computed(() =>
   })) || [],
 )
 
-watch(selectedParam, (newValue) => {
+watch(selectedParam, async (newValue) => {
   if (newValue) {
     router.push({
       name: 'media',
-      params: {
-        media: newValue,
-      },
+      params: { media: newValue },
     })
+
+    if (query.value) {
+      await mediaStore.searchMedia(query.value, newValue)
+    }
+    else {
+      mediaStore.searchedMedia = []
+      mediaStore.isSearch = false
+    }
   }
 })
 
-watch(query, (newQuery) => {
+function selectGenre(genre) {
+  selectedGenre.value = genre.id 
+  console.log('Selected Genre:', selectedGenre.value) 
+  
+  router.push({ 
+    name: 'genre', 
+    params: { genreId: selectedGenre.value }, 
+  })
+
+}
+
+watch(query, async (newQuery) => {
   if (newQuery) {
-    mediaStore.searchMedia(newQuery, 'movie')
+    await mediaStore.searchMedia(newQuery, selectedParam.value)
   }
   else {
     mediaStore.searchedMedia = []
@@ -45,10 +63,10 @@ function handlePageChange(newPage) {
   mediaStore.searchPage = newPage
   mediaStore.searchMedia(query.value, mediaStore.mediaType)
 }
-
 </script>
 
 <template>
+  
   <div class=" top-0 z-10 w-full inter-tight text-white overflow-x-hidden">
     <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
       <div class="p-1 lg:gap-7 w-full flex items-center">
@@ -59,30 +77,55 @@ function handlePageChange(newPage) {
           orientation="horizontal"
         /> -->
 
-        <UButton
-          label="Movie"
-          color="gray"
-          class="md:text-base"
-          variant="link"
-          :class="{ 'text-gray-800': selectedParam === 'movie' }"
-          @click="selectedParam = 'movie'"
-        />
+        <UPopover mode="hover">
+          <UButton
+            label="Movie"
+            color="gray"
+            class="lg:ml-2 md:text-base lg:text-lg"
+            variant="link"
+            :class="{ 'text-gray-800': selectedParam === 'movie' }"
+            @mouseover="selectedParam = 'movie'"
+          />
+          <template #panel>
+            <div class="p-4">
+              <div v-if="mediaStore.genreList.length > 0">
+                <ul>
+                  <li v-for="genre in mediaStore.genreList" :key="genre.id" class="text-lg hover:text-gray-400 cursor-pointer " @click="selectGenre(genre)">
+                    {{ genre.name }}
+                  </li>
+                </ul>
+              </div>
+              <div v-else>
+                <p>No genres available</p>
+              </div>
+            </div>
+          </template>
+        </UPopover>
 
-        <UButton
-          label="TV"
-          color="gray"
-          class="md:text-base"
-          variant="link"
-          :class="{ 'text-gray-800': selectedParam === 'tv' }"
-          @click="selectedParam = 'tv'"
-        />
-
-        <UButton
-          label="Peoples"
-          color="gray"
-          class="md:text-base"
-          variant="link"
-        />
+        <UPopover mode="hover">
+          <UButton
+            label="TV"
+            color="gray"
+            class=" md:text-base lg:text-lg"
+            variant="link"
+            :class="{ 'text-gray-800': selectedParam === 'tv' }"
+            @mouseover="selectedParam = 'tv'"
+          />
+          <template #panel>
+            <div class="p-4">
+              <div v-if="mediaStore.genreList.length > 0">
+                <ul>
+                  <li v-for="genre in mediaStore.genreList" :key="genre.id" class="text-lg hover:text-gray-400 cursor-pointer"  @click="selectGenre(genre)">
+                    {{ genre.name }}
+                  </li>
+                </ul>
+              </div>
+              <div v-else>
+                <p>No genres available</p>
+              </div>
+            </div>
+          </template>
+        </UPopover>
 
         <!-- <USelectMenu v-model="selectedGenre" value-attribute="value" class=" sm:w-32 flex items-center  w-16" :options="mappedGenres" /> -->
       </div>
@@ -95,9 +138,15 @@ function handlePageChange(newPage) {
 
         <UModal
           v-model="isOpen"
-
-          :overlay="true" :ui="{ width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
+          :overlay="true"
+          :ui="{ width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
         >
+          <!-- <UModal
+          v-model="isOpen"
+          :overlay="true"
+          :ui="{ width: query.value.length > 0 ? 'w-full lg:max-w-7xl' : 'w-full sm:max-w-3xl'}"
+        > -->
+
           <div>
             <div class="p-3">
               <!-- <UButton size="xl" class="hover:text-gray-400items-center justify-end " icon="heroicons-x-mark" variant="link" color="white" @click="isOpen = false" /> -->
@@ -131,7 +180,7 @@ function handlePageChange(newPage) {
           </div>
 
           <UPagination
-            v-if="query"
+            v-if="(query && query.length > 1)"
             v-model="mediaStore.searchPage"
             size="sm"
             :total="mediaStore.totalPages"

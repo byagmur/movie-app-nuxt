@@ -44,6 +44,7 @@ watch(
           size="xl"
         />  -->
 
+
         <div class="mt-24 ">
           <h1 class="text-center sm:text-left text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-4">
             {{ route.path === '/movie' ? 'Popular Movies' : 'Popular Series' }}
