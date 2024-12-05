@@ -1,25 +1,20 @@
 <script setup lang="ts">
+import type { Genre } from '~/types'
+
 const router = useRouter()
 const isOpen = ref(false)
 
 const mediaStore = useMediaStore()
-const selectedGenre = ref(16)
+const selectedGenre = ref()
 const query = ref<string>('')
 const selectedParam = ref((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
 onMounted(async () => {
   await mediaStore.fetchGenres(selectedParam.value)
-  await mediaStore.searchMedia(query.value, selectedParam)
+  await mediaStore.searchMedia(query.value, selectedParam.value)
   // console.log('selectedParam value--', selectedParam.value) // movie
   // console.log('secilen tur--', selectedGenre.value) // ?? neden undefined ?
 })
-
-const mappedGenres = computed(() =>
-  mediaStore.genreList?.map(genre => ({
-    label: genre.name,
-    value: genre.id,
-  })) || [],
-)
 
 watch(selectedParam, async (newValue) => {
   if (newValue) {
@@ -38,15 +33,19 @@ watch(selectedParam, async (newValue) => {
   }
 })
 
-function selectGenre(genre) {
-  selectedGenre.value = genre.id 
-  console.log('Selected Genre:', selectedGenre.value) 
-  
-  router.push({ 
-    name: 'genre', 
-    params: { genreId: selectedGenre.value }, 
-  })
+function selectGenre(genre: Genre) {
+  if (genre && genre.id) {
+    selectedGenre.value = genre.id
+    console.log('Selected genre ----', selectedGenre.value)
 
+    router.push({
+      name: 'genre',
+      params: { genre: selectedGenre.value },
+    })
+  }
+  else {
+    console.warn('Genre is invalid or missing id')
+  }
 }
 
 watch(query, async (newQuery) => {
@@ -59,29 +58,21 @@ watch(query, async (newQuery) => {
   }
 })
 
-function handlePageChange(newPage) {
+function handlePageChange(newPage: number) {
   mediaStore.searchPage = newPage
   mediaStore.searchMedia(query.value, mediaStore.mediaType)
 }
 </script>
 
 <template>
-  
   <div class=" top-0 z-10 w-full inter-tight text-white overflow-x-hidden">
     <div class="fixed z-50 bg-gray-100 dark:bg-neutral-900 flex w-full shadow-lg items-center gap-5 py-5 px-10 justify-between">
       <div class="p-1 lg:gap-7 w-full flex items-center">
-        <!-- <URadioGroup
-          v-model="selectedParam"
-          size="xl"
-          :options="options"
-          orientation="horizontal"
-        /> -->
-
         <UPopover mode="hover">
           <UButton
             label="Movie"
             color="gray"
-            class="lg:ml-2 md:text-base lg:text-lg"
+            class="transition duration-700 ease-in-out lg:ml-2 md:text-base lg:text-lg"
             variant="link"
             :class="{ 'text-gray-800': selectedParam === 'movie' }"
             @mouseover="selectedParam = 'movie'"
@@ -90,7 +81,12 @@ function handlePageChange(newPage) {
             <div class="p-4">
               <div v-if="mediaStore.genreList.length > 0">
                 <ul>
-                  <li v-for="genre in mediaStore.genreList" :key="genre.id" class="text-lg hover:text-gray-400 cursor-pointer " @click="selectGenre(genre)">
+                  <li
+                    v-for="genre in mediaStore.genreList"
+                    :key="genre.id"
+                    class="dark:text-gray-200 text-gray-800 text-lg hover:text-gray-400 dark:hover:text-gray-400 cursor-pointer "
+                    @click="selectGenre(genre)"
+                  >
                     {{ genre.name }}
                   </li>
                 </ul>
@@ -106,7 +102,7 @@ function handlePageChange(newPage) {
           <UButton
             label="TV"
             color="gray"
-            class=" md:text-base lg:text-lg"
+            class="transition duration-700 ease-in-out md:text-base lg:text-lg"
             variant="link"
             :class="{ 'text-gray-800': selectedParam === 'tv' }"
             @mouseover="selectedParam = 'tv'"
@@ -115,7 +111,12 @@ function handlePageChange(newPage) {
             <div class="p-4">
               <div v-if="mediaStore.genreList.length > 0">
                 <ul>
-                  <li v-for="genre in mediaStore.genreList" :key="genre.id" class="text-lg hover:text-gray-400 cursor-pointer"  @click="selectGenre(genre)">
+                  <li
+                    v-for="genre in mediaStore.genreList"
+                    :key="genre.id"
+                    class="dark:text-gray-200 text-gray-800 text-lg hover:text-gray-400 dark:hover:text-gray-400 cursor-pointer"
+                    @click="selectGenre(genre)"
+                  >
                     {{ genre.name }}
                   </li>
                 </ul>
@@ -139,7 +140,7 @@ function handlePageChange(newPage) {
         <UModal
           v-model="isOpen"
           :overlay="true"
-          :ui="{ width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
+          :ui="{ container: 'animation-allt duration-100 delay-100 ', width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
         >
           <!-- <UModal
           v-model="isOpen"
@@ -154,7 +155,7 @@ function handlePageChange(newPage) {
               <UInput
                 v-model="query"
                 icon="heroicons-magnifying-glass"
-                class="shadow-lg my-3 rounded-full mx-auto w-44"
+                class="shadow-lg my-3 rounded-full mx-auto w-8/12"
                 type="text" placeholder="Search" style="border-radius: 22px;"
                 size="xl"
               />
@@ -172,7 +173,7 @@ function handlePageChange(newPage) {
                   :style="{ width: '190px', height: '300px' }"
                   :name="media.title || media.name"
                   :vote-average="Math.floor(media.vote_average)"
-                  :poster-path="`https://image.tmdb.org/t/p/w500${media.poster_path}`"
+                  :poster-path="getImage(media.poster_path,500)"
                   @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
                 />
               </div>
@@ -183,7 +184,7 @@ function handlePageChange(newPage) {
             v-if="(query && query.length > 1)"
             v-model="mediaStore.searchPage"
             size="sm"
-            :total="mediaStore.totalPages"
+            :total="200"
             show-last
             show-first
             class="mx-auto p-10"
@@ -200,7 +201,7 @@ function handlePageChange(newPage) {
           icon="heroicons-user-circle"
           variant="link" size="xl" color="white" class="dark:text-white text-gray-900 dark:hover:bg-gray-800 hover:bg-gray-200 mr-1"
         />
-        <ChangeTeheToggle />
+        <ChangeThemeToggle />
       </div>
     </div>
 
@@ -217,5 +218,12 @@ function handlePageChange(newPage) {
   font-optical-sizing: auto;
   font-style: normal;
   letter-spacing: 0.3px;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

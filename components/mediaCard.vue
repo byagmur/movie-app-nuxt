@@ -2,10 +2,10 @@
 import { defineProps } from 'vue'
 
 const props = defineProps<{
-  id: number
+  id: string
   posterPath: string
   voteAverage: number
-  name: string
+  name: string | undefined
 }>()
 
 const router = useRouter()
@@ -21,7 +21,6 @@ function navigateToDetails() {
 </script>
 
 <template>
-  
   <div class=" items-center p-4 rounded-lg transition-transform transform hover:-translate-y-1 ">
     <div class="h-8 z-10 absolute top-1 lg:right-0 right-5 bg-neutral-900 bg-opacity-75 text-yellow-300 text-sm lg:text-base font-semibold rounded-full px-2 py-1 flex items-center">
       <span class="mr-1">{{ props.voteAverage }}</span>

@@ -67,15 +67,15 @@ onMounted(() => {
       class="mx-5 flex flex-col items-center text-center"
     >
       <img
-        :src="`https://image.tmdb.org/t/p/w200/${person.profile_path}`"
+        :src="getImage(person.profile_path,200)"
         class="transition-transform transform hover:-translate-y-1 w-44 h-44 rounded-full object-cover"
         :alt="person.name"
       >
 
-      <p class="mt-2 font-medium text-sm">
+      <p class="dark:text-gray-200 text-gray-800 mt-2 font-medium text-sm">
         {{ person.name }}
       </p>
-      <p v-if="person.name !== person.original_name" class="mt-2 font-medium text-sm">
+      <p v-if="person.name !== person.original_name" class="dark:text-gray-200 text-gray-800 mt-2 font-medium text-sm">
         {{ person.original_name }}
       </p>
     </SwiperSlide>
