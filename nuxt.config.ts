@@ -25,6 +25,7 @@ export default defineNuxtConfig({
     public: {
       tmdbApiKey: process.env.NUXT_TMDB_API_KEY, // .env dosyasından API anahtarını okur
       NUXT_TMDB_TOKEN: process.env.NUXT_TMDB_TOKEN,
+      baseUrl: process.env.NUXT_TMDB_BASE_URL
     },
   },
 

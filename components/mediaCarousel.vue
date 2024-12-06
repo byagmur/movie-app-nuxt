@@ -19,11 +19,11 @@ const spaceBetween = ref(-50)
 
 function updateSlidesPerView() {
   const width = window.innerWidth
-  if (width >= 1500) {
-    slidesPerView.value = 9
+  if (width >= 1507) {
+    slidesPerView.value = 8
   }
   else if (width >= 1300) {
-    slidesPerView.value = 7
+    slidesPerView.value = 6
   }
   else if (width >= 1045) {
     slidesPerView.value = 5

@@ -2,7 +2,7 @@
 import { defineProps } from 'vue'
 
 const props = defineProps<{
-  id: string
+  id: number
   posterPath: string
   voteAverage: number
   name: string | undefined
