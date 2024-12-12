@@ -10,6 +10,11 @@ import 'swiper/css/virtual'
 const slidesPerView = ref(8)
 const spaceBetween = ref(0)
 const mediaStore = useMediaStore()
+let isOpen = false
+
+async function modalOpen() {
+  isOpen = true
+}
 
 function updateSlidesPerView() {
   const width = window.innerWidth
@@ -67,10 +72,17 @@ onMounted(() => {
       class="mx-5 flex flex-col items-center text-center"
     >
       <img
-        :src="getImage(person.profile_path,200)"
+        :src="getImage(person.profile_path, 200)"
         class="transition-transform transform hover:-translate-y-1 w-44 h-44 rounded-full object-cover"
         :alt="person.name"
+        @click="modalOpen"
       >
+
+      <UModal v-if="isOpen" >
+        <UCard>
+          sadsdf
+        </UCard>
+      </UModal>
 
       <p class="dark:text-gray-200 text-gray-800 mt-2 font-medium text-sm">
         {{ person.name }}
@@ -78,6 +90,7 @@ onMounted(() => {
       <p v-if="person.name !== person.original_name" class="dark:text-gray-200 text-gray-800 mt-2 font-medium text-sm">
         {{ person.original_name }}
       </p>
+
     </SwiperSlide>
   </Swiper>
 </template>

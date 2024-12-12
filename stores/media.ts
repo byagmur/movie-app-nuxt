@@ -1,25 +1,20 @@
-import type { Genre, Media, Person, Video } from '~/types'
-import nuxtConfig from '~/nuxt.config'
+import type {  Media, Person, Video } from '~/types'
 
 export const useMediaStore = defineStore('movies', () => {
   const config = useRuntimeConfig()
   const router = useRouter()
   const authStore = useAuthStore()
-
   const mediaList = ref<Media[]>([])
   const mediaDetails = ref<Media>()
   const isLoading = ref<boolean>(true)
   const searchedMedia = ref<Media[]>([])
   const trailers = ref<Video[]>([])
-  const genreList = ref<Genre[]>([])
   const mediaType: ComputedRef<'movie' | 'tv'> = computed(() => (router.currentRoute.value.params.media as 'movie' | 'tv'))
   const topMedia = ref<Media[]>([])
   const isSearch = ref(false)
   const peopleList = ref<Person[]>([])
   const searchPage = ref(1)
-  // const totalPages = ref()
-  const mediaListByGenre = ref<Media[]>([])
-  const genreMap = ref<Genre[]>([])
+  const totalPages = ref()
 
   async function fetchPopularMedia(_mediaType: any) {
     try {
@@ -52,7 +47,7 @@ export const useMediaStore = defineStore('movies', () => {
   }
 
   const searchMedia = async (query: string, _mediaType: any) => {
-    if (!query.trim()) {
+    if (!query) {
       searchedMedia.value = []
       isSearch.value = false
     }
@@ -62,10 +57,11 @@ export const useMediaStore = defineStore('movies', () => {
         const res = await fetch(requestUrl, authStore.options)
         const data = await res.json()
         searchedMedia.value = data.results
-        console.log(searchedMedia.value)
-        console.log('requestUrl', requestUrl)
+        // console.log(searchedMedia.value)
+        // console.log('requestUrl', requestUrl)
         isSearch.value = true
-        // totalPages.value = data.total_pages
+        totalPages.value = data.total_pages
+        console.log('totalpages',totalPages.value)
       }
       catch (err) {
         return err
@@ -85,16 +81,6 @@ export const useMediaStore = defineStore('movies', () => {
     }
   }
 
-  const fetchGenres = async (_media: string) => {
-    try {
-      const res = await fetch(`${config.public.baseUrl}genre/${_media}/list?language=en`, authStore.options)
-      const data = await res.json()
-      genreList.value = data.genres
-      // console.log('türler,', genreList.value)
-    }
-    catch (err) { return err }
-  }
-
   const fetchTopMedia = async (_mediaType: any) => {
     try {
       const res = await fetch(`${config.public.baseUrl}${_mediaType}/top_rated?language=en-US&page=1`, authStore.options)
@@ -112,13 +98,6 @@ export const useMediaStore = defineStore('movies', () => {
     // console.log('people--', peopleList.value)
   }
 
-  const fetchGenresById = async (_mediaType: any, _genreId: number, _page: number) => {
-    const res = await fetch(`${config.public.baseUrl}discover/${_mediaType}?with_genres=${_genreId}&page=${_page}`, authStore.options)
-    const data = await res.json()
-    mediaListByGenre.value = data.results
-    console.log('yey', mediaListByGenre.value)
-  }
-
   return {
     fetchPopularMedia,
     mediaList,
@@ -129,8 +108,6 @@ export const useMediaStore = defineStore('movies', () => {
     fetchTrailer,
     trailers,
     mediaType,
-    fetchGenres,
-    genreList,
     fetchTopMedia,
     topMedia,
     searchedMedia,
@@ -138,8 +115,6 @@ export const useMediaStore = defineStore('movies', () => {
     peopleList,
     fetchPeopleList,
     searchPage,
-    // totalPages,
-    fetchGenresById,
-    mediaListByGenre,
+    totalPages,
   }
 })

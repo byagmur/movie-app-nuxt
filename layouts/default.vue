@@ -4,12 +4,12 @@ import type { Genre } from '~/types'
 const router = useRouter()
 
 
-const mediaStore = useMediaStore()
+const genreStore = useGenreStore()
 const selectedGenre = ref()
 const selectedParam = ref((router.currentRoute.value.params.media as 'movie' | 'tv'))
 
 onMounted(async () => {
-  await mediaStore.fetchGenres(selectedParam.value)
+  await genreStore.fetchGenres(selectedParam.value)
   // console.log('selectedParam value--', selectedParam.value) // movie
   // console.log('secilen tur--', selectedGenre.value) // ?? neden undefined ?
 })
@@ -56,10 +56,10 @@ function selectGenre(genre: Genre) {
           />
           <template #panel>
             <div class="p-4">
-              <div v-if="mediaStore.genreList.length > 0">
+              <div v-if="genreStore.genreList.length > 0">
                 <ul>
                   <li
-                    v-for="genre in mediaStore.genreList"
+                    v-for="genre in genreStore.genreList"
                     :key="genre.id"
                     class="dark:text-gray-200 text-gray-800 text-lg hover:text-gray-400 dark:hover:text-gray-400 cursor-pointer "
                     @click="selectGenre(genre)"
@@ -86,10 +86,10 @@ function selectGenre(genre: Genre) {
           />
           <template #panel>
             <div class="p-4">
-              <div v-if="mediaStore.genreList.length > 0">
+              <div v-if="genreStore.genreList.length > 0">
                 <ul>
                   <li
-                    v-for="genre in mediaStore.genreList"
+                    v-for="genre in genreStore.genreList"
                     :key="genre.id"
                     class="dark:text-gray-200 text-gray-800 text-lg hover:text-gray-400 dark:hover:text-gray-400 cursor-pointer"
                     @click="selectGenre(genre)"
@@ -109,7 +109,8 @@ function selectGenre(genre: Genre) {
       </div>
 
       <div class="flex items-center lg:mr-5">
-<ButtonSearch />
+       
+        <ButtonSearch />
 
         <UButton
           icon="heroicons-bell"

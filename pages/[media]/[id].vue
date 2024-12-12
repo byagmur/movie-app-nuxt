@@ -17,7 +17,8 @@ const mediaStore = useMediaStore()
 
 const mediaId = Number.parseInt(route.params.id as string)
 onMounted(async () => {
-  await mediaStore.fetchMediaDetails(mediaStore.mediaType, mediaId)
+  if (!mediaStore.mediaDetails)
+    await mediaStore.fetchMediaDetails(mediaStore.mediaType, mediaId)
   await mediaStore.fetchTrailer(mediaStore.mediaType, mediaId)
   mediaStore.isLoading = false
   // console.log('trailer-------', mediaStore.trailers)
@@ -34,14 +35,14 @@ onMounted(async () => {
 
       <div class="relative h-screen ">
         <img
-          :src="getImage(mediaStore.mediaDetails?.backdrop_path , 1280)"
+          :src="getImage(mediaStore.mediaDetails?.backdrop_path, 1280)"
           :alt="mediaStore.mediaDetails?.title"
           class="absolute inset-0 h-full w-full object-cover"
         >
         <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 lg:via-black/85 to-transparent transition-background duration-500 ease-in-out" />
 
         <div class="sm:w-1/2 lg:ml-10 lg:w-1/2 absolute inset-0 flex flex-col justify-center text-white px-6 space-y-4 z-10">
-          <h1 v-if="mediaStore.mediaDetails" class=" text-2xl lg:text-4xl font-bold">
+          <h1 v-if="mediaStore.mediaDetails" class=" text-2xl lg:text-3xl font-bold">
             {{ mediaStore.mediaDetails?.title }}
             {{ mediaStore.mediaDetails?.name }}
           </h1>
@@ -50,6 +51,17 @@ onMounted(async () => {
             <span class="text-sm">
 
               {{ mediaStore.mediaDetails?.vote_average }} ·
+
+              <span
+                v-for="genre in mediaStore.mediaDetails?.genres"
+               
+                :key="genre.id"
+                class="mr-1"
+              >
+                {{ genre.name }}
+
+              </span> ·
+
               {{ mediaStore.mediaDetails?.popularity }} Reviews ·
               {{ mediaStore.mediaDetails?.release_date?.substring(0, 4) }} ·
               {{ typeof mediaStore.mediaDetails?.runtime === 'number' ? Math.floor(mediaStore.mediaDetails?.runtime / 60) : '' }}h
@@ -57,33 +69,33 @@ onMounted(async () => {
             </span>
           </div>
 
-          <p class="sm:text-md lg:text-lg">
+          <p class="sm:text-sm lg:text-lg">
             {{ mediaStore.mediaDetails?.overview }}
           </p>
 
           <div class="ml-5">
-            <h1 class="text-xl p-3 font-bold">
+            <h1 class=" text-xl p-3 font-bold">
               Videos
             </h1>
-            <div class=" grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-1">
+            <div class=" md:w-72 lg:w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
               <div
                 v-for="video in mediaStore.trailers"
                 :key="video.id"
               >
                 <img
-                  class="w-32 md:w-44 lg:w-44"
+                  class="w-32 md:w-44 lg:w-44 transform transition ease-in-out delay-100 hover:opacity-90"
                   :src="`https://img.youtube.com/vi/${video.key}/hqdefault.jpg`"
                   :alt="video.name"
                 >
 
-                <h3 class="inter-tight  lg:text-base text-xs">
+                <h3 class="inter-tight  lg:text-sm text-xs">
                   {{ video.name }}
                 </h3>
 
                 <a
                   :href="`https://www.youtube.com/watch?v=${video.key}`"
                   target="_blank"
-                  class=" mt-4 transition  duration-300 ease-in-out inter-tight text-gray-400  lg:text-md md:text-sm sm:text-xs  hover:text-gray-500"
+                  class=" mt-4 transition  duration-300 ease-in-out inter-tight text-gray-400  lg:text-sm md:text-sm sm:text-xs  hover:text-gray-500"
                 >
                   Watch on YouTube
                 </a>

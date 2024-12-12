@@ -15,7 +15,7 @@ export interface Media {
   title: string
   name?: string
   video: boolean
-  vote_average: number
+  vote_average?: number
   vote_count: number
   media_type?: MediaType
   // details

@@ -5,7 +5,6 @@ const isOpen = ref(false)
 const query = ref('')
 const selectedParam = ref((router.currentRoute.value.params.media))
 
-
 onMounted(async () => {
   await mediaStore.searchMedia(query.value, selectedParam.value)
 })
@@ -37,10 +36,11 @@ watch(query, async (newQuery) => {
   }
 })
 
-function handlePageChange(newPage) {
+async function handlePageChange(newPage) {
   mediaStore.searchPage = newPage
-  mediaStore.searchMedia(query, mediaStore.mediaType)
+  await mediaStore.searchMedia(query.value, mediaStore.mediaType)
 }
+
 </script>
 
 <template>
@@ -53,6 +53,7 @@ function handlePageChange(newPage) {
     v-model="isOpen"
     :overlay="true"
     :ui="{ container: 'animation-allt duration-100 delay-100 ', width: 'w-full lg:max-w-7xl  sm:max-w-3xl' }"
+
   >
     <!-- <UModal
           v-model="isOpen"
@@ -61,13 +62,14 @@ function handlePageChange(newPage) {
         > -->
 
     <div>
-      <div class="p-3">
+      
+      <div class="p-3"> 
         <!-- <UButton size="xl" class="hover:text-gray-400items-center justify-end " icon="heroicons-x-mark" variant="link" color="white" @click="isOpen = false" /> -->
 
         <UInput
           v-model="query"
           icon="heroicons-magnifying-glass"
-          class="shadow-lg my-3 rounded-full mx-auto w-8/12"
+          class="shadow-lg my-3 rounded-full mx-auto w-7/12"
           type="text" placeholder="Search" style="border-radius: 22px;"
           size="xl"
         />
@@ -77,20 +79,18 @@ function handlePageChange(newPage) {
         <h1 class="text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-10">
           Results
         </h1>
-        <div class="p-12">
+        <div class="p-8">
           <!-- ---------- -->
           <SearchCard
             v-for="media in mediaStore.searchedMedia"
             :id="media.id"
             :key="media.id"
-
             :name="media.title || media.name"
             :vote-average="Math.floor(media.vote_average)"
             :poster-path="getImage(media.poster_path, 500)"
-            @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
             :overwiew="media.overview"
+            @click="router.push({ name: 'mediaDetails', params: { id: media.id } })"
           />
-          
         </div>
       </div>
     </div>
@@ -103,7 +103,7 @@ function handlePageChange(newPage) {
       show-last
       show-first
       class="mx-auto p-10"
-      @update:model-value="handlePageChange"
+      @update:model-value="(nw) => handlePageChange(nw)"
     />
   </UModal>
 </template>

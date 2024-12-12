@@ -7,15 +7,16 @@ const mediaStore = useMediaStore()
 const route = useRoute()
 
 onMounted(async () => {
+  mediaStore.mediaDetails = undefined
   mediaStore.isLoading = false
   await fetchMediaBasedOnRoute()
   await mediaStore.fetchPeopleList()
 })
 
-function fetchMediaBasedOnRoute() {
+async function fetchMediaBasedOnRoute() {
   const mediaType = route.path === '/movie' ? 'movie' : 'tv'
-  mediaStore.fetchPopularMedia(mediaType)
-  mediaStore.fetchTopMedia(mediaType)
+  await mediaStore.fetchPopularMedia(mediaType)
+  await mediaStore.fetchTopMedia(mediaType)
 }
 
 watch(
@@ -41,13 +42,11 @@ watch(
         />  -->
 
         <div class="mt-24 ">
-
           <h1 class="text-center sm:text-left text-gray-800 dark:text-gray-200 inter-tight text-lg font-bold ml-4">
             {{ route.path === '/movie' ? 'Popular Movies' : 'Popular Series' }}
           </h1>
 
-            <MediaCarousel :media-list="mediaStore.mediaList"
-          />
+          <MediaCarousel :media-list="mediaStore.mediaList" />
         </div>
 
         <div class="">
@@ -64,7 +63,6 @@ watch(
           <PeopleCarousel />
         </div>
       </div>
-
     </template>
   </NuxtLayout>
 </template>
